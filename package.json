@@ -1,0 +1,65 @@
+{
+  "name": "@durely/garmin-insights-mcp",
+  "version": "0.5.0",
+  "description": "durely insights: an MCP server for your own Garmin data, via Garmin's official Personal API. Full history kept locally, analysed down to the second. Unofficial.",
+  "license": "Apache-2.0",
+  "mcpName": "app.durely/garmin-insights-mcp",
+  "author": "durely",
+  "homepage": "https://github.com/durely/garmin-insights-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/durely/garmin-insights-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/durely/garmin-insights-mcp/issues"
+  },
+  "type": "module",
+  "bin": {
+    "garmin-insights-mcp": "dist/index.js",
+    "garmin-insights": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "node src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "node scripts/smoke.ts",
+    "openapi": "node scripts/fetch-openapi.ts && node scripts/generate-openapi-types.ts"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "garmin",
+    "garmin-connect",
+    "fitness",
+    "claude"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.4.0",
+    "fflate": "^0.8.3",
+    "fit-file-parser": "^6.2.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.2",
+    "@modelcontextprotocol/client": "^2.4.0",
+    "@types/node": "^24.19.2",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "~5.9",
+    "vitest": "^5.0.5"
+  }
+}
