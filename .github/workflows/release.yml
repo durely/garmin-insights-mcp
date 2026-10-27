@@ -54,11 +54,8 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run build
-      # Uses trusted publishing. Only the very first publish needs the NPM_TOKEN secret,
-      # because npm can't link a trusted publisher to a package that doesn't exist yet.
+      # Trusted publishing: npm authenticates this workflow over OIDC, so there's no token to store.
       - run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   docker:
     needs: check
