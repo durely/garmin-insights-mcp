@@ -6,7 +6,7 @@ import { type CalendarDate, isCalendarDate } from "./garmin/dates.ts";
 import { GarminApiError } from "./garmin/errors.ts";
 
 export const SERVER_NAME = "garmin-insights-mcp";
-export const SERVER_VERSION = "0.5.0";
+export const SERVER_VERSION = "0.5.1";
 
 export interface Config {
   baseUrl: string;

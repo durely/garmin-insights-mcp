@@ -1,6 +1,6 @@
 {
   "name": "@durely/garmin-insights-mcp",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "durely insights: an MCP server for your own Garmin data, via Garmin's official Personal API. Full history kept locally, analysed down to the second. Unofficial.",
   "license": "Apache-2.0",
   "mcpName": "app.durely/garmin-insights-mcp",
