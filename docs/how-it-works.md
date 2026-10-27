@@ -27,19 +27,19 @@ To start over, delete the data directory (or the `garmin-mcp-data` Docker volume
 
 ### Syncing from the terminal
 
-You can run the first (or a full) sync without an AI client:
+You can run the first (or a full) sync without an AI client. The examples use `garmin-insights`, the command you get with `npm install -g @durely/garmin-insights-mcp`. Without installing, write `npx -y @durely/garmin-insights-mcp` instead; from source, `node dist/index.js`.
 
 ```bash
-node dist/index.js sync              # or: npm run dev -- sync
-node dist/index.js sync --from 2019-01-01 --domains activities,sleep
-node dist/index.js sync --fit        # also download every activity's FIT file
-node dist/index.js status            # what's cached
-node dist/index.js auth              # ask for the key (hidden), check it with Garmin, save it (0600)
-node dist/index.js auth --check      # check the configured key with Garmin; exits 1 if it's missing or rejected
+garmin-insights sync
+garmin-insights sync --from 2019-01-01 --domains activities,sleep
+garmin-insights sync --fit        # also download every activity's FIT file
+garmin-insights status            # what's cached
+garmin-insights auth              # ask for the key (hidden), check it with Garmin, save it (0600)
+garmin-insights auth --check      # check the configured key with Garmin; exits 1 if it's missing or rejected
 
 # Docker:
 docker run -i --rm -v ~/.config/garmin/connect-personal-api-key:/run/secrets/garmin_api_key:ro \
-  -v garmin-mcp-data:/data -e GARMIN_MCP_TIMEZONE=Europe/Brussels garmin-insights-mcp sync
+  -v garmin-mcp-data:/data -e GARMIN_MCP_TIMEZONE=Europe/Brussels ghcr.io/durely/garmin-insights-mcp sync
 ```
 
 ## FIT files
@@ -48,7 +48,7 @@ Laps and time series come from each activity's original FIT file, which is exact
 - **Multisport:** Garmin stores a whole triathlon in one file, so legs are served from their parent's file.
 - **Metrics vary by device:** Garmin devices add VO2max, recovery time and lactate threshold; older watches and third-party apps (Zwift, Rouvy) may not.
 
-To download every FIT file up front, run `node dist/index.js sync --fit`, or call `garmin_sync` with `domains: ["fit_files"]`. It downloads about 2.4 files per second; files are typically 13–730 KB (~170 KB on average), so 1,000 activities take about 7 minutes and ~170 MB. You can interrupt it; it continues where it stopped.
+To download every FIT file up front, run `garmin-insights sync --fit`, or call `garmin_sync` with `domains: ["fit_files"]`. It downloads about 2.4 files per second; files are typically 13–730 KB (~170 KB on average), so 1,000 activities take about 7 minutes and ~170 MB. You can interrupt it; it continues where it stopped.
 
 ## About the numbers
 
@@ -78,6 +78,19 @@ The Personal API is read-only, so nothing can change your Garmin account. Only `
 - To get exported FIT files onto your machine, also mount a host folder: `-v ~/garmin-exports:/data/exports`.
 - On Linux, if the container can't read your `chmod 600` key file, add `--user "$(id -u):$(id -g)"`. The server still works if it can't write its token cache; it just requests a new token after each restart.
 - In JSON configs, use the full path instead of `~` (e.g. `/Users/you/.config/...`), because `~` isn't expanded there.
+
+## Running from source
+
+To run your own build instead of the published package or image:
+
+```bash
+git clone https://github.com/durely/garmin-insights-mcp.git
+cd garmin-insights-mcp
+npm install && npm run build                # Node.js: server command is node /absolute/path/to/garmin-insights-mcp/dist/index.js
+docker build -t garmin-insights-mcp .       # or Docker: use garmin-insights-mcp as the image name in the docker run command
+```
+
+To update, run `git pull` and build again. Your synced data is kept.
 
 ## Development
 

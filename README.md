@@ -1,10 +1,16 @@
 # durely insights
 
+[![npm](https://img.shields.io/npm/v/@durely/garmin-insights-mcp)](https://www.npmjs.com/package/@durely/garmin-insights-mcp)
+[![Node](https://img.shields.io/node/v/@durely/garmin-insights-mcp)](https://nodejs.org)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io-2496ED?logo=docker&logoColor=white)](https://github.com/durely/garmin-insights-mcp/pkgs/container/garmin-insights-mcp)
+[![CI](https://github.com/durely/garmin-insights-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/durely/garmin-insights-mcp/actions/workflows/ci.yml)
+[![License](https://img.shields.io/npm/l/@durely/garmin-insights-mcp)](LICENSE)
+
 **Ask your AI assistant about your own Garmin data: your full training history, health and recovery, analysed.**
 
 durely insights is an [MCP](https://modelcontextprotocol.io) server that connects your Garmin Connect account to your AI assistant (Claude, Cursor, GitHub Copilot, Gemini CLI, Codex or any other MCP client) through Garmin's official **Personal API**. It keeps a copy of your history on your own machine, so you can ask about a single run or about years of training and get an answer right away.
 
-> **Early development (v0.5).** Everything below works. Packaging (npm, Docker image on GHCR) comes next; until then you build it yourself, which takes a minute.
+> **Early development.** Everything below works, but tools and options can still change before version 1.0.
 
 Unofficial project: not affiliated with or endorsed by Garmin.
 
@@ -45,7 +51,15 @@ You need Garmin Connect, an MCP client (Claude Code, Claude Desktop, Cursor, …
 
 1. In Garmin Connect on the web, open [Settings → Personal API Token](https://connect.garmin.com/app/settings/personalApiToken).
 2. Create a key and pick how long it stays valid (30 days to 1 year). **Garmin shows it only once**, so copy it.
-3. Save it to a file only you can read:
+3. Save it with Node.js:
+
+   ```bash
+   npx -y @durely/garmin-insights-mcp auth
+   ```
+
+   It asks for the key (your input stays hidden), checks it with Garmin and saves it to `~/.config/garmin/connect-personal-api-key`, readable only by you.
+
+   **Without Node.js** (Docker), save it to that file yourself:
 
    ```bash
    mkdir -p ~/.config/garmin && chmod 700 ~/.config/garmin
@@ -53,50 +67,40 @@ You need Garmin Connect, an MCP client (Claude Code, Claude Desktop, Cursor, …
    chmod 600 ~/.config/garmin/connect-personal-api-key
    ```
 
-   With Node.js you can skip these commands: after step 2, run `node dist/index.js auth`. It asks for the key (your input stays hidden), checks it with Garmin and saves it to this file.
-
 Don't paste the key into a chat with your AI assistant.
 
-### 2. Install the server
+### 2. Choose how to run it
 
-**With Node.js:**
-
-```bash
-git clone https://github.com/durely/garmin-insights-mcp.git
-cd garmin-insights-mcp
-npm install && npm run build
-```
-
-Your server command is `node /absolute/path/to/garmin-insights-mcp/dist/index.js`. Check your key with `node dist/index.js auth --check`.
-
-**Or with Docker** (no Node.js needed; Docker must be running):
+**With Node.js (npx):** nothing to install. Your server command is:
 
 ```bash
-git clone https://github.com/durely/garmin-insights-mcp.git
-cd garmin-insights-mcp
-docker build -t garmin-insights-mcp .
+npx -y @durely/garmin-insights-mcp
 ```
 
-Your server command is:
+npx downloads the [npm package](https://www.npmjs.com/package/@durely/garmin-insights-mcp) on first use and picks up new releases by itself. Check your key with `npx -y @durely/garmin-insights-mcp auth --check`. Prefer a fixed install? `npm install -g @durely/garmin-insights-mcp` gives you the `garmin-insights` command.
+
+**Or with Docker** (no Node.js needed; Docker must be running). Your server command is:
 
 ```bash
 docker run -i --rm \
   -v ~/.config/garmin/connect-personal-api-key:/run/secrets/garmin_api_key:ro \
   -v garmin-mcp-data:/data \
   -e GARMIN_MCP_TIMEZONE=Europe/Brussels \
-  garmin-insights-mcp
+  ghcr.io/durely/garmin-insights-mcp
 ```
 
-Replace `Europe/Brussels` with your own time zone. To check your key, run the same command with `auth --check` at the end. More Docker tips are in [How it works](docs/how-it-works.md#docker-details).
+Replace `Europe/Brussels` with your own time zone. To check your key, run the same command with `auth --check` at the end. The image runs on Intel and ARM (Apple silicon, Raspberry Pi). More Docker tips are in [How it works](docs/how-it-works.md#docker-details).
 
-**Updating:** run `git pull`, then `npm install && npm run build` (Node) or `docker build -t garmin-insights-mcp .` (Docker). Your synced data is kept.
+**Or from source:** clone the repo and build it with npm or Docker. See [How it works](docs/how-it-works.md#running-from-source).
+
+**Updating:** with npx, restart your client. With Docker, run `docker pull ghcr.io/durely/garmin-insights-mcp`. Your synced data is kept.
 
 ### 3. Add it to your AI client
 
 **Claude Code:**
 
 ```bash
-claude mcp add garmin --scope user -- node /absolute/path/to/garmin-insights-mcp/dist/index.js
+claude mcp add garmin --scope user -- npx -y @durely/garmin-insights-mcp
 ```
 
 With Docker:
@@ -106,7 +110,7 @@ claude mcp add garmin --scope user -- docker run -i --rm \
   -v ~/.config/garmin/connect-personal-api-key:/run/secrets/garmin_api_key:ro \
   -v garmin-mcp-data:/data \
   -e GARMIN_MCP_TIMEZONE=Europe/Brussels \
-  garmin-insights-mcp
+  ghcr.io/durely/garmin-insights-mcp
 ```
 
 `--scope user` makes it available in all your projects.
@@ -117,14 +121,14 @@ claude mcp add garmin --scope user -- docker run -i --rm \
 {
   "mcpServers": {
     "garmin": {
-      "command": "/opt/homebrew/bin/node",
-      "args": ["/absolute/path/to/garmin-insights-mcp/dist/index.js"]
+      "command": "/opt/homebrew/bin/npx",
+      "args": ["-y", "@durely/garmin-insights-mcp"]
     }
   }
 }
 ```
 
-Desktop apps don't see your shell's `PATH`, so use the full path to `node` (find it with `which node`).
+Desktop apps don't see your shell's `PATH`, so use the full path to `npx` (find it with `which npx`). If the log then says `node` isn't found, add `"env": { "PATH": "/opt/homebrew/bin:/usr/bin:/bin" }`, with the folder from `which node` first.
 
 <details>
 <summary><b>Claude Desktop with Docker, Cursor, VS Code, Gemini CLI, Codex CLI</b></summary>
@@ -146,7 +150,7 @@ Desktop apps don't see your shell's `PATH`, so use the full path to `node` (find
         "garmin-mcp-data:/data",
         "-e",
         "GARMIN_MCP_TIMEZONE=Europe/Brussels",
-        "garmin-insights-mcp"
+        "ghcr.io/durely/garmin-insights-mcp"
       ]
     }
   }
@@ -164,8 +168,8 @@ Use full paths here; `~` isn't expanded in JSON configs.
   "servers": {
     "garmin": {
       "type": "stdio",
-      "command": "node",
-      "args": ["/absolute/path/to/garmin-insights-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "@durely/garmin-insights-mcp"]
     }
   }
 }
@@ -174,13 +178,13 @@ Use full paths here; `~` isn't expanded in JSON configs.
 **Gemini CLI:**
 
 ```bash
-gemini mcp add garmin node /absolute/path/to/garmin-insights-mcp/dist/index.js
+gemini mcp add garmin npx -- -y @durely/garmin-insights-mcp
 ```
 
 **OpenAI Codex CLI:**
 
 ```bash
-codex mcp add garmin -- node /absolute/path/to/garmin-insights-mcp/dist/index.js
+codex mcp add garmin -- npx -y @durely/garmin-insights-mcp
 ```
 
 **Others** (Windsurf, Cline, Zed, …): look for "MCP servers" in their settings. Any client that supports **stdio** servers works.
@@ -202,14 +206,14 @@ The first question starts a sync in the background. Your activities are there wi
 
 ## Troubleshooting
 
-| Problem                                                 | Fix                                                                                                                    |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Tools don't show up                                     | Start a new session or restart the client. In Claude Code, check `/mcp`.                                               |
-| `spawn node ENOENT` / server won't start (desktop apps) | Use the full path to `node` or `docker` in the config.                                                                 |
-| "No Garmin Personal API key configured"                 | The key file is missing or not mounted. Check the path (and the `-v` mount for Docker).                                |
-| "Garmin rejected the Personal API key"                  | The key expired or was revoked. Create a new one and replace the file (or run `auth` again). `auth --check` tests it.  |
-| Dates are off by a day                                  | Set `GARMIN_MCP_TIMEZONE` to your time zone (especially in Docker). `garmin_status` warns when it differs from Garmin. |
-| Want to see the tools without an AI client              | `npx @modelcontextprotocol/inspector node dist/index.js`                                                               |
+| Problem                                                | Fix                                                                                                                    |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Tools don't show up                                    | Start a new session or restart the client. In Claude Code, check `/mcp`.                                               |
+| `spawn npx ENOENT` / server won't start (desktop apps) | Use the full path to `npx` or `docker` in the config.                                                                  |
+| "No Garmin Personal API key configured"                | The key file is missing or not mounted. Check the path (and the `-v` mount for Docker).                                |
+| "Garmin rejected the Personal API key"                 | The key expired or was revoked. Create a new one and replace the file (or run `auth` again). `auth --check` tests it.  |
+| Dates are off by a day                                 | Set `GARMIN_MCP_TIMEZONE` to your time zone (especially in Docker). `garmin_status` warns when it differs from Garmin. |
+| Want to see the tools without an AI client             | `npx @modelcontextprotocol/inspector npx -y @durely/garmin-insights-mcp`                                               |
 
 ## Tools
 
