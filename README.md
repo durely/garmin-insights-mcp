@@ -1,4 +1,4 @@
-# durely insights
+# durely garmin-insights-mcp
 
 [![npm](https://img.shields.io/npm/v/@durely/garmin-insights-mcp)](https://www.npmjs.com/package/@durely/garmin-insights-mcp)
 [![Node](https://img.shields.io/node/v/@durely/garmin-insights-mcp)](https://nodejs.org)
