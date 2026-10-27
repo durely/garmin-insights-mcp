@@ -51,15 +51,15 @@ You need Garmin Connect, an MCP client (Claude Code, Claude Desktop, Cursor, …
 
 1. In Garmin Connect on the web, open [Settings → Personal API Token](https://connect.garmin.com/app/settings/personalApiToken).
 2. Create a key and pick how long it stays valid (30 days to 1 year). **Garmin shows it only once**, so copy it.
-3. Save it with Node.js:
+3. Save it by running this in your own terminal:
 
    ```bash
    npx -y @durely/garmin-insights-mcp auth
    ```
 
-   It asks for the key (your input stays hidden), checks it with Garmin and saves it to `~/.config/garmin/connect-personal-api-key`, readable only by you.
+   It asks for the key (your input stays hidden), checks it with Garmin and saves it to `~/.config/garmin/connect-personal-api-key`, readable only by you. If Garmin rejects the key, nothing is saved. The server reads the key from this file, so it doesn't go in your client config.
 
-   **Without Node.js** (Docker), save it to that file yourself:
+   **With Docker** (no Node.js), save it to that file yourself:
 
    ```bash
    mkdir -p ~/.config/garmin && chmod 700 ~/.config/garmin
