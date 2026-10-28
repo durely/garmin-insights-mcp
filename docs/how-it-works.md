@@ -105,7 +105,7 @@ npx @modelcontextprotocol/inspector node dist/index.js   # interactive tool expl
 npm run openapi      # re-extract Garmin's OpenAPI spec and regenerate src/garmin/generated (descriptions go to a local openapi.local.md)
 ```
 
-Releasing: set the new version in `package.json` and `SERVER_VERSION` in `src/config.ts`, commit, then push a tag (`git tag v0.6.0 && git push origin v0.6.0`). The release workflow checks that the tag and both versions match, runs the checks, publishes to npm with provenance and pushes the image to `ghcr.io/durely/garmin-insights-mcp` (amd64 and arm64, tagged with the version and `latest`).
+Releasing: set the new version in `package.json`, `SERVER_VERSION` in `src/config.ts` and the three versions in `server.json` (the server, the npm package and the image tag), commit, then push a tag (`git tag v0.6.0 && git push origin v0.6.0`). The release workflow checks that the tag and all versions match, runs the checks, publishes to npm with provenance and pushes the image to `ghcr.io/durely/garmin-insights-mcp` (amd64 and arm64, tagged with the version and `latest`). Once both are out, it publishes `server.json` to the [MCP Registry](https://registry.modelcontextprotocol.io) as `app.durely/garmin-insights-mcp`. The entry lists only the two local stdio packages, no hosted endpoint. The registry checks ownership three ways: the `durely.app` DNS record (via the `MCP_PRIVATE_KEY` secret on the `mcp-registry` environment), `mcpName` in `package.json` and the `io.modelcontextprotocol.server.name` label in the `Dockerfile`.
 
 Layout:
 

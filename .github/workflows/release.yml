@@ -32,13 +32,14 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Tag matches the package and server version
+      - name: Tag matches the package, server and server.json version
         run: |
           tag="${GITHUB_REF_NAME#v}"
           pkg="$(node -p 'require("./package.json").version')"
           server="$(node dist/index.js --version)"
-          echo "tag=$tag package.json=$pkg server=$server"
-          test "$tag" = "$pkg" && test "$tag" = "$server"
+          registry="$(jq -r '[.version, .packages[0].version, (.packages[1].identifier | split(":")[1])] | unique | join(" ")' server.json)"
+          echo "tag=$tag package.json=$pkg server=$server server.json=$registry"
+          test "$tag" = "$pkg" && test "$tag" = "$server" && test "$tag" = "$registry"
 
   npm:
     needs: check
@@ -86,3 +87,19 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
+  registry:
+    needs: [npm, docker] # the registry checks the npm package and the image, so both must be published first
+    runs-on: ubuntu-latest
+    # MCP_PRIVATE_KEY is a secret on this environment, limited to v* tags, so only release runs can read it.
+    environment: mcp-registry
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/mcp-publisher
+      # app.durely/* is proven with an Ed25519 key whose public half is a TXT record on durely.app.
+      - run: ./mcp-publisher login dns --domain durely.app --private-key "$MCP_PRIVATE_KEY"
+        env:
+          MCP_PRIVATE_KEY: ${{ secrets.MCP_PRIVATE_KEY }}
+      - run: ./mcp-publisher publish
