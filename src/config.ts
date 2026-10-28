@@ -28,29 +28,33 @@ export interface Config {
 const DEFAULT_KEY_FILE = join(homedir(), ".config/garmin/connect-personal-api-key");
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const expires = env.GARMIN_API_KEY_EXPIRES?.trim();
+  // Clients that install from the MCP Registry can pass a field the user left empty as "", so blank means unset.
+  const get = (name: string) => env[name]?.trim() || undefined;
+  const expires = get("GARMIN_API_KEY_EXPIRES");
   if (expires && !isCalendarDate(expires)) {
     throw new Error(`GARMIN_API_KEY_EXPIRES must be a date like 2027-10-24, got "${expires}"`);
   }
 
-  const rps = Number(env.GARMIN_MCP_REQUESTS_PER_SECOND ?? 4);
+  const rps = Number(get("GARMIN_MCP_REQUESTS_PER_SECOND") ?? 4);
   if (!Number.isFinite(rps) || rps <= 0 || rps > 20) {
     throw new Error("GARMIN_MCP_REQUESTS_PER_SECOND must be a number between 0 and 20");
   }
 
-  const detailDays = Number(env.GARMIN_MCP_DETAIL_DAYS ?? 150);
+  const detailDays = Number(get("GARMIN_MCP_DETAIL_DAYS") ?? 150);
   if (!Number.isInteger(detailDays) || detailDays < 1 || detailDays > 3650) {
     throw new Error("GARMIN_MCP_DETAIL_DAYS must be a whole number of days between 1 and 3650");
   }
-  const autoSync = !["false", "0", "no", "off"].includes((env.GARMIN_MCP_AUTO_SYNC ?? "true").toLowerCase());
+  const autoSync = !["false", "0", "no", "off"].includes(
+    (get("GARMIN_MCP_AUTO_SYNC") ?? "true").toLowerCase(),
+  );
 
-  const dataDir = env.GARMIN_MCP_DATA_DIR ?? join(homedir(), ".garmin-insights-mcp");
+  const dataDir = get("GARMIN_MCP_DATA_DIR") ?? join(homedir(), ".garmin-insights-mcp");
   return {
-    baseUrl: (env.GARMIN_PERSONAL_API_BASE_URL ?? "https://personal.connectapi.garmin.com").replace(
+    baseUrl: (get("GARMIN_PERSONAL_API_BASE_URL") ?? "https://personal.connectapi.garmin.com").replace(
       /\/$/,
       "",
     ),
-    apiKeyFile: env.GARMIN_PERSONAL_API_KEY_FILE ?? DEFAULT_KEY_FILE,
+    apiKeyFile: get("GARMIN_PERSONAL_API_KEY_FILE") ?? DEFAULT_KEY_FILE,
     apiKeyExpires: expires as CalendarDate | undefined,
     dataDir,
     tokenCacheFile: join(dataDir, "token.json"),
@@ -58,7 +62,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     autoSync,
     staleAfterMs: 60 * 60 * 1000,
     detailDays,
-    timeZone: env.GARMIN_MCP_TIMEZONE ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timeZone: get("GARMIN_MCP_TIMEZONE") ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
     requestsPerSecond: rps,
   };
 }
