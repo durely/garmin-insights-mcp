@@ -2,6 +2,11 @@
 
 All notable changes to this project. Versions follow [semantic versioning](https://semver.org).
 
+## Unreleased
+
+- **MCP Registry:** listed as `app.durely/garmin-insights-mcp`, with the npm package and the Docker image (both run locally). Published by the release workflow.
+- **Fix:** an empty setting (e.g. `GARMIN_MCP_TIMEZONE=""`) now counts as unset instead of stopping the server. Clients that install from the registry can pass fields you leave empty this way.
+
 ## 0.5.1
 
 Documentation only; the server is unchanged.

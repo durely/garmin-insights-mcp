@@ -26,3 +26,6 @@ jobs:
         run: node dist/index.js --version
       - name: Docker image builds
         run: docker build -t garmin-insights-mcp:ci .
+      - uses: ./.github/actions/mcp-publisher
+      - name: server.json is valid for the MCP Registry
+        run: ./mcp-publisher validate

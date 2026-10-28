@@ -1,0 +1,84 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "app.durely/garmin-insights-mcp",
+  "title": "durely insights",
+  "description": "Your own Garmin data via the official Personal API: full history kept locally, analysed.",
+  "version": "0.5.1",
+  "websiteUrl": "https://github.com/durely/garmin-insights-mcp#readme",
+  "repository": {
+    "url": "https://github.com/durely/garmin-insights-mcp",
+    "source": "github",
+    "id": "1433352516"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "@durely/garmin-insights-mcp",
+      "version": "0.5.1",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "environmentVariables": [
+        {
+          "name": "GARMIN_PERSONAL_API_KEY",
+          "description": "Your Garmin Personal API key. Leave empty if you saved it with `npx -y @durely/garmin-insights-mcp auth` (recommended): the server then reads it from ~/.config/garmin/connect-personal-api-key.",
+          "isSecret": true
+        },
+        {
+          "name": "GARMIN_MCP_TIMEZONE",
+          "description": "Your time zone, e.g. Europe/Brussels. Defaults to your computer's time zone."
+        },
+        {
+          "name": "GARMIN_API_KEY_EXPIRES",
+          "description": "The date your key expires, e.g. 2027-10-24, so the server can warn you in time."
+        }
+      ]
+    },
+    {
+      "registryType": "oci",
+      "identifier": "ghcr.io/durely/garmin-insights-mcp:0.5.1",
+      "transport": { "type": "stdio" },
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--mount",
+          "description": "Your Garmin Personal API key file, mounted read-only.",
+          "value": "type=bind,src={key_file},dst=/run/secrets/garmin_api_key,readonly",
+          "isRequired": true,
+          "variables": {
+            "key_file": {
+              "description": "Full path to the file that holds your key, e.g. /Users/you/.config/garmin/connect-personal-api-key.",
+              "format": "filepath",
+              "isRequired": true
+            }
+          }
+        },
+        {
+          "type": "named",
+          "name": "--mount",
+          "description": "Docker volume for the local cache of your Garmin history.",
+          "value": "type=volume,src={volume},dst=/data",
+          "isRequired": true,
+          "variables": {
+            "volume": {
+              "description": "Name of the Docker volume.",
+              "default": "garmin-mcp-data",
+              "isRequired": true
+            }
+          }
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "GARMIN_MCP_TIMEZONE",
+          "description": "Your time zone, e.g. Europe/Brussels. The container doesn't know your computer's time zone, so set it.",
+          "isRequired": true
+        },
+        {
+          "name": "GARMIN_API_KEY_EXPIRES",
+          "description": "The date your key expires, e.g. 2027-10-24, so the server can warn you in time."
+        }
+      ]
+    }
+  ]
+}
