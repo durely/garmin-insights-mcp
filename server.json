@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "app.durely/garmin-insights-mcp",
-  "title": "durely insights",
-  "description": "Your own Garmin data via the official Personal API: full history kept locally, analysed.",
+  "title": "durely garmin-insights-mcp",
+  "description": "Your full Garmin history, kept locally, analysed down to the second, via the official Personal API.",
   "version": "0.5.1",
   "websiteUrl": "https://github.com/durely/garmin-insights-mcp#readme",
   "repository": {
