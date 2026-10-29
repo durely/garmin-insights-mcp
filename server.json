@@ -3,7 +3,7 @@
   "name": "app.durely/garmin-insights-mcp",
   "title": "durely insights MCP for Garmin",
   "description": "Your full Garmin history, kept locally, analysed down to the second, via the official Personal API.",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "websiteUrl": "https://github.com/durely/garmin-insights-mcp#readme",
   "repository": {
     "url": "https://github.com/durely/garmin-insights-mcp",
@@ -15,7 +15,7 @@
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@durely/garmin-insights-mcp",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "runtimeHint": "npx",
       "transport": { "type": "stdio" },
       "environmentVariables": [
@@ -36,7 +36,7 @@
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/durely/garmin-insights-mcp:0.5.1",
+      "identifier": "ghcr.io/durely/garmin-insights-mcp:0.5.2",
       "transport": { "type": "stdio" },
       "runtimeArguments": [
         {
