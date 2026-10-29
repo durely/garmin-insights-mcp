@@ -102,4 +102,11 @@ jobs:
       - run: ./mcp-publisher login dns --domain durely.app --private-key "$MCP_PRIVATE_KEY"
         env:
           MCP_PRIVATE_KEY: ${{ secrets.MCP_PRIVATE_KEY }}
+      # npm can take a minute to serve a version it just accepted, and the registry checks it right away.
+      - name: Wait until npm serves this version
+        run: |
+          url="https://registry.npmjs.org/@durely%2Fgarmin-insights-mcp/${GITHUB_REF_NAME#v}"
+          for _ in $(seq 1 30); do curl --fail --silent --output /dev/null "$url" && exit 0; sleep 10; done
+          echo "::error::npm still doesn't serve ${GITHUB_REF_NAME#v} after 5 minutes"
+          exit 1
       - run: ./mcp-publisher publish
