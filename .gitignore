@@ -21,6 +21,7 @@ spike/
 # Secrets and local config
 .env
 .env.*
+*.pem
 .claude/settings.local.json
 
 # OS and editor files
